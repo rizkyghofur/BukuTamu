@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login"
+    android:background="@drawable/bg_layout"
     tools:context=".MainMenu">
 
     <ScrollView
@@ -131,7 +131,7 @@
                 android:layout_marginTop="25dp"
                 android:layout_marginBottom="30dp"
                 android:background="@drawable/button_form"
-                android:text="Submit"
+                android:text="Login"
                 android:textColor="@color/white" />
         </LinearLayout>
     </ScrollView>
