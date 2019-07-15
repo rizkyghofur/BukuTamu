@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_layout"
+    tools:context=".MainMenu">
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="25dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/bukutamu"
+                    android:layout_width="190dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/title"
+                    android:layout_alignBottom="@+id/title"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/tulisan_buku_tamu" />
+
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/etNik"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="32dp"
+                android:background="@drawable/edittext_form"
+                android:hint="NIK"
+                android:inputType="number"
+                android:textColorHint="@color/grey" />
+
+            <EditText
+                android:id="@+id/etNama"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="32dp"
+                android:background="@drawable/edittext_form"
+                android:hint="Nama"
+                android:inputType="text"
+                android:textColorHint="@color/grey" />
+
+            <EditText
+                android:id="@+id/etAlamat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="32dp"
+                android:background="@drawable/edittext_form"
+                android:hint="Alamat"
+                android:inputType="text"
+                android:textColorHint="@color/grey" />
+
+            <EditText
+                android:id="@+id/tanggal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="32dp"
+                android:background="@drawable/edittext_form"
+                android:hint="Tanggal/Bulan/Tahun"
+                android:inputType="datetime"
+                android:textColorHint="@color/grey" />
+
+            <EditText
+                android:id="@+id/etPihak"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="32dp"
+                android:background="@drawable/edittext_form"
+                android:hint="Pihak Yang Dituju"
+                android:inputType="text"
+                android:textColorHint="@color/grey" />
+
+            <EditText
+                android:id="@+id/lampiran"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="32dp"
+                android:background="@drawable/edittext_form"
+                android:drawableLeft="@drawable/ic_camera"
+                android:hint="  Lampiran Surat"
+                android:inputType="text"
+                android:textColorHint="@color/grey" />
+
+            <EditText
+                android:id="@+id/etTujuan"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="32dp"
+                android:background="@drawable/edittext_form"
+                android:hint="Tujuan"
+                android:inputType="textMultiLine"
+                android:textColorHint="@color/grey" />
+
+            <Button
+                android:id="@+id/submit"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="30dp"
+                android:background="@drawable/button_form"
+                android:text="Submit"
+                android:textColor="@color/white" />
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

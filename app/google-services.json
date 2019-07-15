@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "705918680785",
+    "firebase_url": "https://buku-tamu-kominfobwi.firebaseio.com",
+    "project_id": "buku-tamu-kominfobwi",
+    "storage_bucket": "buku-tamu-kominfobwi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:705918680785:android:7cff51ce45cbb46d",
+        "android_client_info": {
+          "package_name": "com.projekkominfo.bukutamu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "705918680785-cfjfidcv4ms9tt02bmkn0pf0tn58e32p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.projekkominfo.bukutamu",
+            "certificate_hash": "5beb742aed4f8e08cd2325bc9d86dcef6fcf3da7"
+          }
+        },
+        {
+          "client_id": "705918680785-jsgfofblui0csmmse5rl56qr2cg85mq5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQ1XgIJxOwwO4SwmTosFpMX5AcfpPlDJI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "705918680785-jsgfofblui0csmmse5rl56qr2cg85mq5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
