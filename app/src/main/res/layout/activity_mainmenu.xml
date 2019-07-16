@@ -73,16 +73,16 @@
                 android:inputType="text"
                 android:textColorHint="@color/grey" />
 
-            <EditText
+            <TextView
                 android:id="@+id/tanggal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="32dp"
                 android:layout_marginTop="15dp"
+                android:textSize="9pt"
                 android:layout_marginRight="32dp"
                 android:background="@drawable/edittext_form"
-                android:hint="Tanggal/Bulan/Tahun"
-                android:inputType="datetime"
+                android:text="Tanggal/Bulan/Tahun"
                 android:textColorHint="@color/grey" />
 
             <EditText
@@ -97,8 +97,16 @@
                 android:inputType="text"
                 android:textColorHint="@color/grey" />
 
-            <EditText
-                android:id="@+id/lampiran"
+            <ImageView
+                android:id="@+id/image_view"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="32dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/gambar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="32dp"
@@ -106,7 +114,7 @@
                 android:layout_marginRight="32dp"
                 android:background="@drawable/edittext_form"
                 android:drawableLeft="@drawable/ic_camera"
-                android:hint="  Lampiran Surat"
+                android:text="Lampiran Surat"
                 android:inputType="text"
                 android:textColorHint="@color/grey" />
 
@@ -131,7 +139,7 @@
                 android:layout_marginTop="25dp"
                 android:layout_marginBottom="30dp"
                 android:background="@drawable/button_form"
-                android:text="Login"
+                android:text="Submit"
                 android:textColor="@color/white" />
         </LinearLayout>
     </ScrollView>
