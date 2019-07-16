@@ -2,14 +2,12 @@ package com.projekkominfo.bukutamu;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.widget.Toast;
 
 public class CheckInet extends AppCompatActivity {
 
@@ -53,7 +51,6 @@ public class CheckInet extends AppCompatActivity {
     }
 
     public AlertDialog.Builder buildDialog(Context c) {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(c);
         builder.setTitle("Tidak ada koneksi internet");
         builder.setMessage("Anda membutuhkan koneksi internet untuk dapat mengakses aplikasi ini. Klik OK untuk keluar");
