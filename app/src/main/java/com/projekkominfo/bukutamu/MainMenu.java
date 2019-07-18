@@ -2,18 +2,15 @@ package com.projekkominfo.bukutamu;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,15 +19,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 public class MainMenu extends AppCompatActivity {
 
@@ -43,15 +38,9 @@ public class MainMenu extends AppCompatActivity {
     SimpleDateFormat mdformat = new SimpleDateFormat("EEEE, dd MMMM yyyy ");
     String strDate = mdformat.format(calendar.getTime());
 
-    Intent intent;
-    Uri fileUri;
-    ImageView imageView;
-    Bitmap bitmap, decoded;
-    public final int REQUEST_CAMERA = 0;
-    public final int SELECT_FILE = 1;
-
-    int bitmap_size = 40; // image quality 1 - 100;
-    int max_resolution_image = 800;
+    private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
+    private ImageView ivImage;
+    private String userChoosenTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,16 +56,8 @@ public class MainMenu extends AppCompatActivity {
         etTujuan = findViewById(R.id.etTujuan);
         etSubmit = findViewById(R.id.submit);
         etGambar = findViewById(R.id.gambar);
-        imageView = findViewById(R.id.image_view);
-
+        ivImage = findViewById(R.id.image_view);
         etTanggal.setText(strDate);
-
-        etSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                tambahdata();
-            }
-        });
 
         etGambar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,30 +65,52 @@ public class MainMenu extends AppCompatActivity {
                 selectImage();
             }
         });
+
+        etSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tambahdata();
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case UtilCam.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if(userChoosenTask.equals("Take Photo"))
+                        cameraIntent();
+                    else if(userChoosenTask.equals("Choose from Library"))
+                        galleryIntent();
+                } else {
+                }
+                break;
+        }
     }
 
     private void selectImage() {
-        imageView.setImageResource(0);
-        final CharSequence[] items = {"Take Photo", "Choose from Library",
-                "Cancel"};
+        final CharSequence[] items = { "Ambil Foto", "Pilih dari Galeri",
+                "Batal" };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainMenu.this);
-        builder.setTitle("Add Photo!");
-        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setTitle("Tambah lampiran surat");
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
-                if (items[item].equals("Take Photo")) {
-                    intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    fileUri = getOutputMediaFileUri();
-                    intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, fileUri);
-                    startActivityForResult(intent, REQUEST_CAMERA);
-                } else if (items[item].equals("Choose from Library")) {
-                    intent = new Intent();
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_FILE);
-                } else if (items[item].equals("Cancel")) {
+                boolean result=UtilCam.checkPermission(MainMenu.this);
+
+                if (items[item].equals("Ambil Foto")) {
+                    userChoosenTask ="Ambil Foto";
+                    if(result)
+                        cameraIntent();
+
+                } else if (items[item].equals("Pilih dari Galeri")) {
+                    userChoosenTask ="Pilih dari Galeri";
+                    if(result)
+                        galleryIntent();
+
+                } else if (items[item].equals("Batal")) {
                     dialog.dismiss();
                 }
             }
@@ -115,77 +118,18 @@ public class MainMenu extends AppCompatActivity {
         builder.show();
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.e("onActivityResult", "requestCode " + requestCode + ", resultCode " + resultCode);
-
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == REQUEST_CAMERA) {
-                try {
-                    Log.e("CAMERA", fileUri.getPath());
-
-                    bitmap = BitmapFactory.decodeFile(fileUri.getPath());
-                    setToImageView(getResizedBitmap(bitmap, max_resolution_image));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else if (requestCode == SELECT_FILE && data != null && data.getData() != null) {
-                try {
-
-                    bitmap = MediaStore.Images.Media.getBitmap(MainMenu.this.getContentResolver(), data.getData());
-                    setToImageView(getResizedBitmap(bitmap, max_resolution_image));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+    private void galleryIntent()
+    {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);//
+        startActivityForResult(Intent.createChooser(intent, "Select File"),SELECT_FILE);
     }
 
-    private void setToImageView(Bitmap bmp) {
-
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.JPEG, bitmap_size, bytes);
-        decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(bytes.toByteArray()));
-        imageView.setImageBitmap(decoded);
-    }
-
-    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 1) {
-            width = maxSize;
-            height = (int) (width / bitmapRatio);
-        } else {
-            height = maxSize;
-            width = (int) (height * bitmapRatio);
-        }
-        return Bitmap.createScaledBitmap(image, width, height, true);
-    }
-
-    public Uri getOutputMediaFileUri() {
-        return Uri.fromFile(getOutputMediaFile());
-    }
-
-    private static File getOutputMediaFile() {
-
-        // External sdcard location
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "DeKa");
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Log.e("Monitoring", "Oops! Failed create Monitoring directory");
-                return null;
-            }
-        }
-
-        // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        File mediaFile;
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_DeKa_" + timeStamp + ".jpg");
-
-        return mediaFile;
+    private void cameraIntent()
+    {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_CAMERA);
     }
 
     private void tambahdata() {
@@ -233,4 +177,53 @@ public class MainMenu extends AppCompatActivity {
             Toast.makeText(this,"Data berhasil diinput",Toast.LENGTH_LONG).show();
         }
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == SELECT_FILE)
+                onSelectFromGalleryResult(data);
+            else if (requestCode == REQUEST_CAMERA)
+                onCaptureImageResult(data);
+        }
+    }
+
+    private void onCaptureImageResult(Intent data) {
+        Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+
+        File destination = new File(Environment.getExternalStorageDirectory(),
+                System.currentTimeMillis() + ".jpg");
+
+        FileOutputStream fo;
+        try {
+            destination.createNewFile();
+            fo = new FileOutputStream(destination);
+            fo.write(bytes.toByteArray());
+            fo.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ivImage.setImageBitmap(thumbnail);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void onSelectFromGalleryResult(Intent data) {
+
+        Bitmap bm=null;
+        if (data != null) {
+            try {
+                bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        ivImage.setImageBitmap(bm);
+    }
+
 }
