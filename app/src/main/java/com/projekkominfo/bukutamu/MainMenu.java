@@ -1,14 +1,14 @@
 package com.projekkominfo.bukutamu;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import android.app.Activity;
-import android.content.DialogInterface;
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.View;
@@ -19,28 +19,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class MainMenu extends AppCompatActivity {
 
+    private static final int PERMISSION_CODE = 1000;
+    private static final int IMAGE_CAPTURE_CODE = 1001;
     EditText etNik, etNama, etAlamat, etTujuan, etPihak;
     TextView etTanggal;
     Button etSubmit, etGambar;
+    Uri image_uri;
     DatabaseReference mFirebaseDatabase;
-
     Calendar calendar = Calendar.getInstance();
     SimpleDateFormat mdformat = new SimpleDateFormat("EEEE, dd MMMM yyyy ");
     String strDate = mdformat.format(calendar.getTime());
-
-    private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
-    private ImageView ivImage;
-    private String userChoosenTask;
+    ImageView ivImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +56,30 @@ public class MainMenu extends AppCompatActivity {
         etGambar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectImage();
+                //if system os is >= marshmallow, request runtime permission
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    if (checkSelfPermission(Manifest.permission.CAMERA) ==
+                            PackageManager.PERMISSION_DENIED ||
+                            checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                                    PackageManager.PERMISSION_DENIED){
+                        //permission not enabled, request it
+                        String[] permission = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                        //show popup to request permissions
+                        requestPermissions(permission, PERMISSION_CODE);
+                    }
+                    else {
+                        //permission already granted
+                        openCamera();
+                    }
+                }
+                else {
+                    //system os < marshmallow
+                    openCamera();
+                }
             }
         });
 
-        etSubmit.setOnClickListener(new View.OnClickListener() {
+    etSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 tambahdata();
@@ -74,62 +87,44 @@ public class MainMenu extends AppCompatActivity {
         });
     }
 
+    private void openCamera() {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "Scam Surat");
+        values.put(MediaStore.Images.Media.DESCRIPTION, "Dari kamera");
+        image_uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        //Camera intent
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, image_uri);
+        startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE);
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case UtilCam.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(userChoosenTask.equals("Take Photo"))
-                        cameraIntent();
-                    else if(userChoosenTask.equals("Choose from Library"))
-                        galleryIntent();
-                } else {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //this method is called, when user presses Allow or Deny from Permission Request Popup
+        switch (requestCode){
+            case PERMISSION_CODE:{
+                if (grantResults.length > 0 && grantResults[0] ==
+                        PackageManager.PERMISSION_GRANTED){
+                    //permission from popup was granted
+                    openCamera();
                 }
-                break;
+                else {
+                    //permission from popup was denied
+                    Toast.makeText(this, "Izin ditolak", Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 
-    private void selectImage() {
-        final CharSequence[] items = { "Ambil Foto", "Pilih dari Galeri",
-                "Batal" };
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainMenu.this);
-        builder.setTitle("Tambah lampiran surat");
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int item) {
-                boolean result=UtilCam.checkPermission(MainMenu.this);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //called when image was captured from camera
 
-                if (items[item].equals("Ambil Foto")) {
-                    userChoosenTask ="Ambil Foto";
-                    if(result)
-                        cameraIntent();
-
-                } else if (items[item].equals("Pilih dari Galeri")) {
-                    userChoosenTask ="Pilih dari Galeri";
-                    if(result)
-                        galleryIntent();
-
-                } else if (items[item].equals("Batal")) {
-                    dialog.dismiss();
-                }
-            }
-        });
-        builder.show();
-    }
-
-    private void galleryIntent()
-    {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);//
-        startActivityForResult(Intent.createChooser(intent, "Select File"),SELECT_FILE);
-    }
-
-    private void cameraIntent()
-    {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, REQUEST_CAMERA);
+        if (resultCode == RESULT_OK){
+            //set the image captured to our ImageView
+            ivImage.setImageURI(image_uri);
+        }
     }
 
     private void tambahdata() {
@@ -176,54 +171,6 @@ public class MainMenu extends AppCompatActivity {
             etTujuan.setText("");
             Toast.makeText(this,"Data berhasil diinput",Toast.LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == SELECT_FILE)
-                onSelectFromGalleryResult(data);
-            else if (requestCode == REQUEST_CAMERA)
-                onCaptureImageResult(data);
-        }
-    }
-
-    private void onCaptureImageResult(Intent data) {
-        Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-
-        File destination = new File(Environment.getExternalStorageDirectory(),
-                System.currentTimeMillis() + ".jpg");
-
-        FileOutputStream fo;
-        try {
-            destination.createNewFile();
-            fo = new FileOutputStream(destination);
-            fo.write(bytes.toByteArray());
-            fo.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ivImage.setImageBitmap(thumbnail);
-    }
-
-    @SuppressWarnings("deprecation")
-    private void onSelectFromGalleryResult(Intent data) {
-
-        Bitmap bm=null;
-        if (data != null) {
-            try {
-                bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        ivImage.setImageBitmap(bm);
     }
 
 }
