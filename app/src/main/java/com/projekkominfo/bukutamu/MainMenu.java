@@ -62,20 +62,17 @@ public class MainMenu extends AppCompatActivity {
                         requestPermissions(permission, PERMISSION_CODE);
                         CropImage.activity()
                                 .setGuidelines(CropImageView.Guidelines.ON)
-                                .setAspectRatio(1, 1) //You can skip this for free form aspect ratio)
                                 .start(MainMenu.this);
                     }
                     else {
                         CropImage.activity()
                                 .setGuidelines(CropImageView.Guidelines.ON)
-                                .setAspectRatio(1, 1) //You can skip this for free form aspect ratio)
                                 .start(MainMenu.this);
                     }
                 }
                 else {
                     CropImage.activity()
                             .setGuidelines(CropImageView.Guidelines.ON)
-                            .setAspectRatio(1, 1) //You can skip this for free form aspect ratio)
                             .start(MainMenu.this);
                 }
             }
