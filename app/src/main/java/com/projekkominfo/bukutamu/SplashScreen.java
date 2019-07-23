@@ -12,7 +12,6 @@ public class SplashScreen extends AppCompatActivity {
 
     private int timelapse = 2000;
     PermissionHelper permissionHelper;
-    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
